@@ -1,0 +1,7 @@
+ASSISTANT_NAME = "Alex"
+
+VOICE_RATE = 170
+
+WAKE_WORD = "alex"
+
+DEBUG = True

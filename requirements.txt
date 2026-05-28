@@ -1,0 +1,13 @@
+cffi==2.0.0
+colorama==0.4.6
+comtypes==1.4.16
+pocketsphinx==5.1.0
+PyAudio==0.2.14
+pycparser==3.0
+pypiwin32==223
+python-dotenv==1.2.2
+pyttsx3==2.99
+pywin32==311
+sounddevice==0.5.5
+SpeechRecognition==3.16.1
+typing_extensions==4.15.0
