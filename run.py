@@ -2,48 +2,60 @@ from app.speech.listener import Listener
 from app.speech.speaker import Speaker
 
 from app.commands.parser import CommandParser
-from app.commands.executor import CommandExecutor
+from app.commands.dispatcher import CommandDispatcher
 
-import time
-from app.automations.system import SystemController
+from app.nlp.validator import CommandValidator
+from app.core.logger import Logger
 
+from app.core.memory import Memory
+
+
+logger = Logger()
 
 listener = Listener()
 speaker = Speaker()
+memory = Memory()
 
 speaker.speak("Voice assistant started")
 
-while True:
+try:
+    while True:
 
-    command = listener.listen()
+        command = listener.listen()
 
-    if not command:
-        continue
+        if not command:
+            continue
 
-    parsed_data = CommandParser.parse(command)
+        logger.info(f"User said: {command}")
 
-    response = CommandExecutor.execute(parsed_data)
+        parsed_data = CommandParser.parse(command)
 
-    message = None
-    action = None
+        memory.add_command(
+            command=command,
+            intent=parsed_data["intent"]
+        )
 
-    # ✅ SAFE HANDLING
-    if isinstance(response, dict):
-        message = response.get("message")
-        action = response.get("action")
+        valid, message = CommandValidator.validate(parsed_data)
 
-    else:
-        message = response
+        if not valid:
+            logger.warning(message)
+            speaker.speak(message)
+            continue
 
-    # 🗣️ SPEAK FIRST
-    if message:
-        speaker.speak(message)
+        try:
+            response = CommandDispatcher.dispatch(parsed_data)
 
-    # ⚙️ ACTION HANDLER
-    if action == "shutdown":
-        time.sleep(2)
-        SystemController.shutdown()
+            logger.info(f"Response: {response}")
 
-    # 🚪 EXIT CONDITION
-    if parsed_data.get("intent") == "exit":
-        break
+            speaker.speak(response)
+
+            if parsed_data["intent"] == "exit":
+                break
+
+        except Exception as e:
+            logger.error(str(e))
+            speaker.speak("Something went wrong")
+
+except KeyboardInterrupt:
+    print("\n[INFO] Assistant stopped safely")
+    speaker.speak("Goodbye boss")

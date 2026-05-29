@@ -1,50 +1,24 @@
+from app.config.commands import COMMAND_KEYWORDS
+
+
 class IntentMatcher:
 
-    COMMANDS = {
+    @staticmethod
+    def match_intent(command: str):
 
-        "open_chrome": [
-            "open chrome",
-            "launch chrome",
-            "start chrome",
-            "open browser"
-        ],
+        command = command.lower()
 
-        "open_youtube": [
-            "open youtube",
-            "launch youtube",
-            "start youtube"
-        ],
+        matched_intents = []
 
-        "shutdown": [
-            "shutdown",
-            "turn off computer",
-            "power off"
-        ],
+        for intent, keywords in COMMAND_KEYWORDS.items():
 
-        "restart": [
-            "restart",
-            "reboot computer"
-        ],
+            for word in keywords:
 
-        "open_project": [
-        "open project",
-       "open the project"
-        ],
+                if word in command:
+                    matched_intents.append(intent)
+                    break
 
-        "open_file": [
-            "open file",
-            "open"
-        ]
-    }
+        if not matched_intents:
+            return "unknown"
 
-    @classmethod
-    def match_intent(cls, command: str):
-
-        for intent, patterns in cls.COMMANDS.items():
-
-            for pattern in patterns:
-
-                if pattern in command:
-                    return intent
-
-        return "unknown"
+        return matched_intents[0]

@@ -7,41 +7,87 @@ class CommandParser:
     @staticmethod
     def parse(command: str):
 
-        normalized_command = TextNormalizer.normalize(command)
+        normalized = TextNormalizer.normalize(command)
 
-        words = normalized_command.split()   # ✅ ALWAYS DEFINED FIRST
-
-        intent = IntentMatcher.match_intent(normalized_command)
+        intent = IntentMatcher.match_intent(normalized)
 
         data = {
-            "intent": intent
+            "intent": intent,
+            "actions": []
         }
 
-        # Google search
-        if "search google for" in normalized_command:
+        # STEP SPLITTER (VERY IMPORTANT)
+        steps = normalized.replace("then", "|").replace("and", "|").split("|")
 
-            query = normalized_command.replace(
-                "search google for",
-                ""
-            ).strip()
+        step_index = 0
 
-            data["intent"] = "google_search"
-            data["query"] = query
+        for step in steps:
 
-        # Open project
-        if "project" in words:
+            step = step.strip()
 
-            index = words.index("project")
+            if not step:
+                continue
 
-            if index + 1 < len(words):
+            step_index += 1
 
-                project_name = words[index + 1]
+            # -------------------------
+            # YOUTUBE ACTION
+            # -------------------------
+            if "youtube" in step and "search" not in step:
+                data["actions"].append({
+                    "step": step_index,
+                    "type": "open_youtube"
+                })
 
-                data["intent"] = "open_project"
-                data["project_name"] = project_name
+            # -------------------------
+            # SEARCH ACTION (SMART)
+            # -------------------------
+            if "search" in step:
 
-        # Debug
-        print(f"Normalized: {normalized_command}")
-        print(f"Detected Intent: {data['intent']}")
+                # DEFAULT
+                target = "google"
+
+                # PLATFORM PRIORITY (IMPORTANT FIX)
+                if "youtube" in step:
+                    target = "youtube"
+
+                elif "chatgpt" in step or "gpt" in step:
+                    target = "chatgpt"
+
+                elif "google" in step:
+                    target = "google"
+
+                # CLEAN QUERY
+                query = step
+
+                for word in ["open", "search", "youtube", "chatgpt", "gpt", "google", "on", "for", "about"]:
+                    query = query.replace(word, "")
+
+                query = query.strip()
+
+                if query:
+
+                    data["actions"].append({
+                        "step": step_index,
+                        "type": f"{target}_search",
+                        "query": query
+                    })
+
+            # -------------------------
+            # CHATGPT OPEN
+            # -------------------------
+            if "chatgpt" in step and "search" not in step:
+
+                data["actions"].append({
+                    "step": step_index,
+                    "type": "open_chatgpt"
+                })
+
+        # SORT ACTIONS BY STEP (IMPORTANT)
+        data["actions"].sort(key=lambda x: x["step"])
+
+        print(f"Normalized: {normalized}")
+        print(f"Intent: {intent}")
+        print(f"Actions: {data['actions']}")
 
         return data
