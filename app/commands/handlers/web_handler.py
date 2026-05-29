@@ -9,6 +9,14 @@ class WebHandler:
         WebController.open_youtube()
 
         return "Opening YouTube"
+    @staticmethod
+    def youtube_search(data):
+
+     query = data.get("query", "")
+
+     WebController.search_youtube(query)
+
+     return f"Searching YouTube for {query}"
 
     @staticmethod
     def google_search(data):

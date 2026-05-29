@@ -1,5 +1,6 @@
 from app.commands.registry import COMMAND_REGISTRY
 
+
 class CommandDispatcher:
 
     @staticmethod
@@ -13,20 +14,16 @@ class CommandDispatcher:
 
             action_type = action.get("type")
 
-            if action_type == "open_youtube":
-                from app.commands.handlers.web_handler import WebHandler
-                responses.append(WebHandler.open_youtube(action))
+            handler = COMMAND_REGISTRY.get(action_type)
 
-            elif action_type == "youtube_search":
-                from app.commands.handlers.web_handler import WebHandler
-                responses.append(WebHandler.google_search(action))  # reuse logic
+            if handler:
 
-            elif action_type == "google_search":
-                from app.commands.handlers.web_handler import WebHandler
-                responses.append(WebHandler.google_search(action))
+                response = handler(action)
 
-            elif action_type == "open_chatgpt":
-                from app.commands.handlers.web_handler import WebHandler
-                responses.append(WebHandler.open_chatgpt(action))
+                if response:
+                    responses.append(response)
+
+            else:
+                responses.append(f"Unknown action: {action_type}")
 
         return " | ".join(responses) if responses else "Unknown command"

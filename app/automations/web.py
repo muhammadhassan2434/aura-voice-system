@@ -12,6 +12,15 @@ class WebController:
         webbrowser.open(url)
 
     @staticmethod
+    def search_youtube(query):
+
+        import webbrowser
+
+        url = f"https://www.youtube.com/results?search_query={query}"
+
+        webbrowser.open(url)
+
+    @staticmethod
     def open_chatgpt():
         webbrowser.open("https://chatgpt.com")
 

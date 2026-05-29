@@ -13,6 +13,7 @@ COMMAND_REGISTRY = {
     "google_search": WebHandler.google_search,
     "open_chatgpt": WebHandler.open_chatgpt,
     "search_chatgpt": WebHandler.search_chatgpt,
+    "youtube_search": WebHandler.youtube_search,
 
     # FILES
     "open_project": FileHandler.open_project,

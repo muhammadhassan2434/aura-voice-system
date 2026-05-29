@@ -25,4 +25,4 @@ class SystemHandler:
     @staticmethod
     def exit_assistant(data):
 
-        return "Goodbye"
+        return "Goodbye boss"
