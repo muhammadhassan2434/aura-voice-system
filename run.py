@@ -68,18 +68,16 @@ try:
 
             logger.info(f"Response: {response}")
 
-            speaker.speak(response)
-
-            # ----------------------------------------
-            # EXIT
-            # ----------------------------------------
             actions = parsed_data.get("actions", [])
 
-            if any(a.get("type") == "exit" for a in actions):
+            is_exit = any(a.get("type") == "exit" for a in actions)
 
-                speaker.speak("Goodbye boss")
-
+            if is_exit:
+                speaker.speak(response or "Goodbye boss")
                 break
+
+            if response:
+                speaker.speak(response)
 
             # BACK TO SLEEP
             ACTIVE_MODE = False
@@ -97,3 +95,7 @@ except KeyboardInterrupt:
     print("\n[INFO] Assistant stopped safely")
 
     speaker.speak("Goodbye boss")
+
+finally:
+
+    speaker.close()

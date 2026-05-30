@@ -1,7 +1,7 @@
-ASSISTANT_NAME = "Alex"
+ASSISTANT_NAME = "Aura"
 
 VOICE_RATE = 170
 
-WAKE_WORD = "alex"
+WAKE_WORD = "aura"
 
 DEBUG = True

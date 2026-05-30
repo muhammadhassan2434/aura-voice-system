@@ -103,7 +103,7 @@ class AIBrain:
 
                 actions.append({
                     "step": step,
-                    "type": "chatgpt_search",
+                    "type": "search_chatgpt",
                     "query": query
                 })
 
