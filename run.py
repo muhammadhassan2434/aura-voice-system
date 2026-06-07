@@ -45,12 +45,9 @@ try:
         # ----------------------------------------
         # PARSE COMMAND
         # ----------------------------------------
-        parsed_data = CommandParser.parse(command)
+        parsed_data = CommandParser.parse(command, memory)
 
-        memory.add_command(
-            command=command,
-            intent=parsed_data.get("intent", "unknown")
-        )
+        memory.update(command, parsed_data)
 
         valid, message = CommandValidator.validate(parsed_data)
 

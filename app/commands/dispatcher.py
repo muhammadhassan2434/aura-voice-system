@@ -17,11 +17,7 @@ class CommandDispatcher:
             handler = COMMAND_REGISTRY.get(action_type)
 
             if handler:
-                try:
-                    responses.append(handler(action))
-                except Exception as e:
-                    responses.append(f"Error: {action_type}")
-
+                responses.append(handler(action))
             else:
                 responses.append(f"Unknown action: {action_type}")
 

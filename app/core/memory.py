@@ -1,27 +1,36 @@
 class Memory:
 
     def __init__(self):
-        self.history = []
         self.last_command = None
-        self.last_intent = None
+        self.last_actions = []
+        self.last_query = None
+        self.history = []
 
-        # simple user preferences (expand later)
-        self.preferences = {}
-
-    def add_command(self, command: str, intent: str):
-        self.history.append({
-            "command": command,
-            "intent": intent
-        })
+    # -----------------------
+    # SAVE COMMAND
+    # -----------------------
+    def update(self, command, parsed_data):
 
         self.last_command = command
-        self.last_intent = intent
+        self.history.append(command)
 
-    def get_history(self):
-        return self.history[-10:]  # last 10 commands
+        actions = parsed_data.get("actions", [])
 
-    def set_preference(self, key, value):
-        self.preferences[key] = value
+        self.last_actions = actions
 
-    def get_preference(self, key):
-        return self.preferences.get(key, None)
+        # extract query if exists
+        for action in actions:
+            if "query" in action:
+                self.last_query = action["query"]
+
+    # -----------------------
+    # CONTEXT HELPERS
+    # -----------------------
+    def get_last_query(self):
+        return self.last_query
+
+    def get_last_actions(self):
+        return self.last_actions
+
+    def get_last_command(self):
+        return self.last_command

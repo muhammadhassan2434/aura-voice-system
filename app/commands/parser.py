@@ -1,75 +1,54 @@
-from app.nlp.normalizer import TextNormalizer
+from app.ai.brain import Brain
 
 
 class CommandParser:
 
     @staticmethod
-    def parse(command: str):
+    def parse(command: str, memory):
 
-        normalized = TextNormalizer.normalize(command)
+        # 1. get base AI/rule result
+        result = Brain.parse(command)
 
+        actions = result.get("actions", [])
+
+        # 2. attach follow-up actions
+        follow_actions = CommandParser.resolve_followup(command, memory)
+
+        if follow_actions:
+            actions.extend(follow_actions)
+
+        result["actions"] = actions
+
+        print(f"[BRAIN OUTPUT]: {result}")
+
+        return result
+
+    # -------------------------
+    # FOLLOW-UP HANDLER
+    # -------------------------
+    @staticmethod
+    def resolve_followup(command, memory):
+
+        command = command.lower()
         actions = []
 
-        # ----------------------------
-        # CLEAN TEXT
-        # ----------------------------
-        text = normalized
+        last_query = memory.get_last_query()
 
-        remove_words = [
-            "and", "then", "please", "karo", "aur", "on", "in", "for"
-        ]
+        if not last_query:
+            return actions
 
-        for w in remove_words:
-            text = text.replace(w, "")
-
-        text = text.strip()
-
-        # ----------------------------
-        # YOUTUBE
-        # ----------------------------
-        if "youtube" in text:
-
+        # FIRST RESULT
+        if "first result" in command or "open first" in command:
             actions.append({
-                "type": "open_website",
-                "name": "youtube"
+                "type": "google_search",
+                "query": last_query
             })
 
-        # ----------------------------
-        # CHATGPT
-        # ----------------------------
-        if "chatgpt" in text or "gpt" in text:
-
+        # REPEAT
+        elif "same" in command or "repeat" in command:
             actions.append({
-                "type": "open_website",
-                "name": "chatgpt"
+                "type": "google_search",
+                "query": last_query
             })
 
-        # ----------------------------
-        # GOOGLE SEARCH (smart extract)
-        # ----------------------------
-        if "search" in text:
-
-            query = text.replace("youtube", "")
-            query = query.replace("chatgpt", "")
-            query = query.replace("google", "")
-            query = query.replace("search", "")
-            query = query.strip()
-
-            if query:
-                actions.append({
-                    "type": "google_search",
-                    "query": query
-                })
-
-        # ----------------------------
-        # FALLBACK
-        # ----------------------------
-        if not actions:
-            actions.append({
-                "type": "unknown",
-                "query": text
-            })
-
-        return {
-            "actions": actions
-        }
+        return actions
