@@ -1,39 +1,28 @@
+IGNORE_WORDS = ["karo", "open", "please", "aur", "and", "the", "please"]
+
 class EntityExtractor:
 
     @staticmethod
     def extract(command: str, intent: str):
 
-        command = command.lower()
+        words = command.split()
 
-        data = {}
+        clean_words = [w for w in words if w not in IGNORE_WORDS]
 
-        # GOOGLE SEARCH
-        if intent == "google_search":
+        entities = {}
 
-            for phrase in ["google", "search for", "search"]:
+        if intent == "open_website":
 
-                command = command.replace(phrase, "")
+            for w in clean_words:
+                if w in ["youtube", "chatgpt", "google"]:
+                    entities["name"] = w
+                    entities["type"] = "website"
 
-            data["query"] = command.strip()
+        if intent == "open_app":
 
-        # CHATGPT SEARCH
-        elif intent == "open_chatgpt":
+            for w in clean_words:
+                if w in ["chrome", "notepad", "vscode"]:
+                    entities["name"] = w
+                    entities["type"] = "app"
 
-            for phrase in ["open", "chatgpt", "gpt"]:
-
-                command = command.replace(phrase, "")
-
-            data["query"] = command.strip()
-
-        # PROJECT OPEN
-        elif intent == "open_project":
-
-            words = command.split()
-
-            if "project" in words:
-                idx = words.index("project")
-
-                if idx + 1 < len(words):
-                    data["project_name"] = words[idx + 1]
-
-        return data
+        return entities

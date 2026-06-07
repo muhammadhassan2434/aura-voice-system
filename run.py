@@ -36,13 +36,11 @@ try:
         # ----------------------------------------
         if not ACTIVE_MODE:
 
-            if WakeDetector.detect(command):
+         if WakeDetector.detect(command):
+            ACTIVE_MODE = True
+            speaker.speak("Yes boss, I am listening")
 
-                ACTIVE_MODE = True
-
-                speaker.speak("Yes boss, I am listening")
-
-            continue
+         continue   # MUST stop here
 
         # ----------------------------------------
         # PARSE COMMAND

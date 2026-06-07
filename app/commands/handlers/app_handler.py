@@ -1,11 +1,19 @@
-from app.automations.apps import AppOpener
+import subprocess
+from app.config.apps import APPS
 
 
 class AppHandler:
 
     @staticmethod
-    def open_chrome(data):
+    def open_app(data):
 
-        AppOpener.open_chrome()
+        name = data.get("name")
 
-        return "Opening Chrome"
+        path = APPS.get(name)
+
+        if not path:
+            return f"{name} not installed or not configured"
+
+        subprocess.Popen(path)
+
+        return f"Opening {name}"
