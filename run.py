@@ -8,6 +8,7 @@ from app.nlp.validator import CommandValidator
 from app.core.logger import Logger
 from app.core.memory import Memory
 from app.core.wake_detector import WakeDetector
+from app.core.safety import Safety
 
 
 logger = Logger()
@@ -59,31 +60,70 @@ try:
 
         try:
 
+            actions = parsed_data.get("actions", [])
+
+            # -------------------------
+            # SAFETY CHECK
+            # -------------------------
+            risk = Safety.check(actions)
+
+            if risk == "dangerous":
+
+                speaker.speak("This is a dangerous action. Are you sure boss?")
+
+                confirm = listener.listen()
+
+                if "yes" not in confirm.lower():
+                 speaker.speak("Cancelled")
+                 ACTIVE_MODE = False
+                 continue
+
+                speaker.speak("Okay executing boss")
+
+            elif risk == "medium":
+
+                speaker.speak("Confirm action boss?")
+
+                confirm = listener.listen()
+
+                if "yes" not in confirm.lower():
+                    speaker.speak("Cancelled")
+                    ACTIVE_MODE = False
+                    continue
+
+            # -------------------------
+            # EXECUTE COMMAND (MISSING LINE FIXED)
+            # -------------------------
             response = CommandDispatcher.dispatch(parsed_data)
 
             logger.info(f"Response: {response}")
 
-            actions = parsed_data.get("actions", [])
-
+            # -------------------------
+            # EXIT CHECK
+            # -------------------------
             is_exit = any(a.get("type") == "exit" for a in actions)
 
             if is_exit:
                 speaker.speak(response or "Goodbye boss")
                 break
 
+            # -------------------------
+            # SPEAK RESPONSE
+            # -------------------------
             if response:
                 speaker.speak(response)
 
             # BACK TO SLEEP
             ACTIVE_MODE = False
 
+
         except Exception as e:
 
             logger.error(str(e))
-
             speaker.speak("Something went wrong")
 
             ACTIVE_MODE = False
+
 
 except KeyboardInterrupt:
 

@@ -1,13 +1,9 @@
-import re
-
-
 class AIBrain:
 
     @staticmethod
     def parse(command: str):
 
         command = command.lower().strip()
-
         actions = []
 
         # -------------------------
@@ -15,17 +11,16 @@ class AIBrain:
         # -------------------------
         if "youtube" in command:
 
-            if "search" in command or "watch" in command:
+            if "search" in command:
 
                 query = command
-
                 for w in ["open", "youtube", "search", "and", "on", "for", "about"]:
                     query = query.replace(w, "")
 
                 query = " ".join(query.split())
 
                 actions.append({
-                    "type": "youtube_search",
+                    "type": "search_youtube",
                     "query": query
                 })
 
@@ -38,26 +33,23 @@ class AIBrain:
         # -------------------------
         # GOOGLE
         # -------------------------
-        if "google" in command or "search" in command:
+        elif "google" in command or "search" in command:
 
-            if "youtube" not in command:
+            query = command
+            for w in ["google", "search", "open", "for", "about"]:
+                query = query.replace(w, "")
 
-                query = command
+            query = " ".join(query.split())
 
-                for w in ["google", "search", "open", "for", "about"]:
-                    query = query.replace(w, "")
-
-                query = " ".join(query.split())
-
-                actions.append({
-                    "type": "google_search",
-                    "query": query
-                })
+            actions.append({
+                "type": "google_search",
+                "query": query
+            })
 
         # -------------------------
         # CHATGPT
         # -------------------------
-        if "chatgpt" in command or "gpt" in command:
+        elif "chatgpt" in command or "gpt" in command:
 
             if "search" in command:
 
@@ -78,9 +70,9 @@ class AIBrain:
         # -------------------------
         # FALLBACK
         # -------------------------
-        if not actions:
+        else:
             actions.append({
-                "type": "unknown",
+                "type": "google_search",
                 "query": command
             })
 

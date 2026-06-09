@@ -5,27 +5,20 @@ class Memory:
         self.last_actions = []
         self.last_query = None
         self.history = []
+        self.pending_actions = []  # ✅ FIXED
 
-    # -----------------------
-    # SAVE COMMAND
-    # -----------------------
     def update(self, command, parsed_data):
 
         self.last_command = command
         self.history.append(command)
 
         actions = parsed_data.get("actions", [])
-
         self.last_actions = actions
 
-        # extract query if exists
         for action in actions:
             if "query" in action:
                 self.last_query = action["query"]
 
-    # -----------------------
-    # CONTEXT HELPERS
-    # -----------------------
     def get_last_query(self):
         return self.last_query
 
@@ -34,3 +27,9 @@ class Memory:
 
     def get_last_command(self):
         return self.last_command
+
+    def set_pending_actions(self, actions):
+        self.pending_actions = actions
+
+    def get_pending_actions(self):
+        return self.pending_actions
